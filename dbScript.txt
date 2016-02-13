@@ -1,0 +1,331 @@
+-- MySQL Workbench Forward Engineering
+
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
+
+-- -----------------------------------------------------
+-- Schema test_task
+-- -----------------------------------------------------
+
+-- -----------------------------------------------------
+-- Schema test_task
+-- -----------------------------------------------------
+CREATE SCHEMA IF NOT EXISTS `test_task` DEFAULT CHARACTER SET utf8 ;
+-- -----------------------------------------------------
+-- Schema test_task
+-- -----------------------------------------------------
+
+-- -----------------------------------------------------
+-- Schema test_task
+-- -----------------------------------------------------
+CREATE SCHEMA IF NOT EXISTS `test_task` DEFAULT CHARACTER SET utf8 ;
+USE `test_task` ;
+
+-- -----------------------------------------------------
+-- Table `test_task`.`country`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `test_task`.`country` (
+  `id` INT NOT NULL,
+  `name` VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`id`));
+
+
+-- -----------------------------------------------------
+-- Table `test_task`.`city`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `test_task`.`city` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`id`));
+
+
+-- -----------------------------------------------------
+-- Table `test_task`.`profile`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `test_task`.`profile` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(45) NOT NULL,
+  `last_name` VARCHAR(45) NOT NULL,
+  `unique_idnetifier` DATETIME NOT NULL,
+  `image` VARCHAR(45) NULL,
+  `dob` DATE NULL,
+  `gender` CHAR NOT NULL,
+  `country_id` INT NOT NULL,
+  `city_id` INT NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `unique_idnetifier_UNIQUE` (`unique_idnetifier` ASC),
+  UNIQUE INDEX `image_UNIQUE` (`image` ASC),
+  INDEX `fk_profile_country1_idx` (`country_id` ASC),
+  INDEX `fk_profile_city1_idx` (`city_id` ASC),
+  CONSTRAINT `fk_profile_country1`
+    FOREIGN KEY (`country_id`)
+    REFERENCES `test_task`.`country` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_profile_city1`
+    FOREIGN KEY (`city_id`)
+    REFERENCES `test_task`.`city` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `test_task`.`user`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `test_task`.`user` (
+  `username` VARCHAR(16) NOT NULL,
+  `email` VARCHAR(255) NOT NULL,
+  `password` VARCHAR(255) NOT NULL,
+  `create_time` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `profile_id` INT NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_user_profile_idx` (`profile_id` ASC),
+  CONSTRAINT `fk_user_profile`
+    FOREIGN KEY (`profile_id`)
+    REFERENCES `test_task`.`profile` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+
+-- -----------------------------------------------------
+-- Table `test_task`.`friendship_status`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `test_task`.`friendship_status` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `name_UNIQUE` (`name` ASC));
+
+
+-- -----------------------------------------------------
+-- Table `test_task`.`friendship`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `test_task`.`friendship` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `profile_id` INT NOT NULL,
+  `profile_id1` INT NOT NULL,
+  `friendship_status_id` INT NOT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `modified_at` TIMESTAMP NULL,
+  `friednshipcol` VARCHAR(45) NULL,
+  INDEX `fk_friednship_profile1_idx` (`profile_id` ASC),
+  INDEX `fk_friednship_profile2_idx` (`profile_id1` ASC),
+  PRIMARY KEY (`id`),
+  CONSTRAINT `fk_friednship_profile1`
+    FOREIGN KEY (`profile_id`)
+    REFERENCES `test_task`.`profile` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_friednship_profile2`
+    FOREIGN KEY (`profile_id1`)
+    REFERENCES `test_task`.`profile` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_friednship_friendship_status1`
+    FOREIGN KEY (`friendship_status_id`)
+    REFERENCES `test_task`.`friendship_status` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `test_task`.`post_type`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `test_task`.`post_type` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`id`));
+
+
+-- -----------------------------------------------------
+-- Table `test_task`.`post`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `test_task`.`post` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `title` VARCHAR(45) NOT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `modified_at` TIMESTAMP NULL,
+  `content` VARCHAR(45) NULL,
+  `text` TEXT(200) NULL,
+  `profile_id` INT NOT NULL,
+  `post_type_id` INT NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_post_profile1_idx` (`profile_id` ASC),
+  INDEX `fk_post_post_type1_idx` (`post_type_id` ASC),
+  CONSTRAINT `fk_post_profile1`
+    FOREIGN KEY (`profile_id`)
+    REFERENCES `test_task`.`profile` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_post_post_type1`
+    FOREIGN KEY (`post_type_id`)
+    REFERENCES `test_task`.`post_type` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `test_task`.`reaction_type`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `test_task`.`reaction_type` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`id`));
+
+
+-- -----------------------------------------------------
+-- Table `test_task`.`reaction`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `test_task`.`reaction` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `post_id` INT NOT NULL,
+  `profile_id` INT NOT NULL,
+  `reaction_type_id` INT NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_reaction_post1_idx` (`post_id` ASC),
+  INDEX `fk_reaction_profile1_idx` (`profile_id` ASC),
+  INDEX `fk_reaction_reaction_type1_idx` (`reaction_type_id` ASC),
+  CONSTRAINT `fk_reaction_post1`
+    FOREIGN KEY (`post_id`)
+    REFERENCES `test_task`.`post` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_reaction_profile1`
+    FOREIGN KEY (`profile_id`)
+    REFERENCES `test_task`.`profile` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_reaction_reaction_type1`
+    FOREIGN KEY (`reaction_type_id`)
+    REFERENCES `test_task`.`reaction_type` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `test_task`.`comment`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `test_task`.`comment` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `text` TEXT(100) NOT NULL,
+  `profile_id` INT NOT NULL,
+  `post_id` INT NOT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `modified_at` TIMESTAMP NULL,
+  `commentcol` VARCHAR(45) NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_comment_profile1_idx` (`profile_id` ASC),
+  INDEX `fk_comment_post1_idx` (`post_id` ASC),
+  CONSTRAINT `fk_comment_profile1`
+    FOREIGN KEY (`profile_id`)
+    REFERENCES `test_task`.`profile` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_comment_post1`
+    FOREIGN KEY (`post_id`)
+    REFERENCES `test_task`.`post` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+USE `test_task` ;
+
+-- -----------------------------------------------------
+-- Table `test_task`.`city`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `test_task`.`city` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `test_task`.`country`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `test_task`.`country` (
+  `id` INT(11) NOT NULL,
+  `name` VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `test_task`.`friendship_status`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `test_task`.`friendship_status` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `name_UNIQUE` (`name` ASC))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `test_task`.`profile`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `test_task`.`profile` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(45) NOT NULL,
+  `last_name` VARCHAR(45) NOT NULL,
+  `unique_idnetifier` DATETIME NOT NULL,
+  `image` VARCHAR(45) NULL DEFAULT NULL,
+  `dob` DATE NULL DEFAULT NULL,
+  `gender` CHAR(1) NOT NULL,
+  `country_id` INT(11) NOT NULL,
+  `city_id` INT(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `unique_idnetifier_UNIQUE` (`unique_idnetifier` ASC),
+  UNIQUE INDEX `image_UNIQUE` (`image` ASC),
+  INDEX `fk_profile_country1_idx` (`country_id` ASC),
+  INDEX `fk_profile_city1_idx` (`city_id` ASC),
+  CONSTRAINT `fk_profile_city1`
+    FOREIGN KEY (`city_id`)
+    REFERENCES `test_task`.`city` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_profile_country1`
+    FOREIGN KEY (`country_id`)
+    REFERENCES `test_task`.`country` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `test_task`.`user`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `test_task`.`user` (
+  `username` VARCHAR(16) NOT NULL,
+  `email` VARCHAR(255) NOT NULL,
+  `password` VARCHAR(255) NOT NULL,
+  `create_time` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `profile_id` INT(11) NOT NULL,
+  `active` INT(1) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`id`),
+  INDEX `fk_user_profile_idx` (`profile_id` ASC),
+  CONSTRAINT `fk_user_profile`
+    FOREIGN KEY (`profile_id`)
+    REFERENCES `test_task`.`profile` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+
+
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
